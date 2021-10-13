@@ -16,6 +16,14 @@ public class Prescription {
         this.itemList = itemList;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setItemList(List<Item> itemList) {
+        this.itemList = itemList;
+    }
+
     public Prescription(int patientId, List<Item> itemList) {
         this.patientId = patientId;
         this.itemList = itemList;
@@ -27,5 +35,15 @@ public class Prescription {
 
     public List<Item> getItemList() {
         return itemList;
+    }
+
+    @Override
+    public String toString() {
+        return "Prescription{" +
+                "id=" + id +
+                ", patientId=" + patientId +
+                ", isConfirmed=" + isConfirmed +
+                ", itemList=" + itemList +
+                '}';
     }
 }

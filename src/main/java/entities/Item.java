@@ -8,6 +8,14 @@ public class Item {
     private Boolean exists;
     private Double unitPrice;
 
+    public Boolean getExists() {
+        return exists;
+    }
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
     public Item(int id, int prescriptionId, String name, int quantity, Boolean exists, Double unitPrice) {
         this.id = id;
         this.prescriptionId = prescriptionId;
@@ -16,6 +24,7 @@ public class Item {
         this.exists = exists;
         this.unitPrice = unitPrice;
     }
+
 
     public Item(String name, int quantity) {
         this.name = name;
@@ -36,5 +45,29 @@ public class Item {
 
     public int getQuantity() {
         return quantity;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setExists(Boolean exists) {
+        this.exists = exists;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", prescriptionId=" + prescriptionId +
+                ", name='" + name + '\'' +
+                ", quantity=" + quantity +
+                ", exists=" + exists +
+                ", unitPrice=" + unitPrice +
+                '}';
     }
 }
