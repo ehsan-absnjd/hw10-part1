@@ -47,8 +47,8 @@ public class PrescriptionDao extends DaoAbstract<Prescription> {
         }
         return prescriptionList;
     }
-    public List<Prescription> getByPatientId(int id){
-        final String QUERY = "SELECT id, isconfirmed, patient_id FROM prescriptions WHERE patient_id = ?";
+    public List<Prescription> getConfirmedByPatientId(int id){
+        final String QUERY = "SELECT id, isconfirmed, patient_id FROM prescriptions WHERE patient_id = ? AND isconfirmed=true";
         List<Prescription> prescriptionList =new ArrayList<>();
         try(PreparedStatement preparedStatement= statementForVarArgs(QUERY , id);
             ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -65,7 +65,7 @@ public class PrescriptionDao extends DaoAbstract<Prescription> {
 
     public Optional<Prescription> getById(int id){
         final String QUERY = "SELECT id, isconfirmed, patient_id FROM prescriptions WHERE id = ?";
-        Optional<Prescription> prescription =null;
+        Optional<Prescription> prescription =Optional.empty();
         try(PreparedStatement preparedStatement= statementForVarArgs(QUERY, id);
             ResultSet resultSet = preparedStatement.executeQuery()) {
             if (resultSet.next()) {
@@ -79,11 +79,16 @@ public class PrescriptionDao extends DaoAbstract<Prescription> {
     public void update(int prescriptionId , List<Item> items ){
         Optional<Prescription> prescriptionOptional = getById(prescriptionId);
         if(prescriptionOptional.isPresent()){
-            Prescription prescription = prescriptionOptional.get();
-            itemDao.deleteByPrescriptionId(prescriptionId);
-            for(Item item : items){
-                item.setPrescriptionId(prescriptionId);
-                itemDao.save(item);
+            final String QUERY="UPDATE prescriptions SET isconfirmed=false WHERE id=?";
+            try(PreparedStatement preparedStatement = statementForVarArgs(QUERY, prescriptionId)) {
+                preparedStatement.execute();
+                itemDao.deleteByPrescriptionId(prescriptionId);
+                for (Item item : items) {
+                    item.setPrescriptionId(prescriptionId);
+                    itemDao.save(item);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
