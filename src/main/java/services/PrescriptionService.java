@@ -7,7 +7,7 @@ import entities.Prescription;
 import java.util.List;
 import java.util.Optional;
 
-public class PrescriptionService {
+public class PrescriptionService extends ServiceAbstract<Prescription> {
     private PrescriptionDao prescriptionDao = new PrescriptionDao();
     public int save(Prescription prescription) {
         return prescriptionDao.save(prescription);
