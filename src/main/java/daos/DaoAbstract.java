@@ -8,6 +8,7 @@ import java.sql.*;
 public abstract class DaoAbstract <T> {
     private MariaDbDataSource dataSource = new MariaDbDataSource();
     protected Connection connection;
+
     public DaoAbstract(){
         try {
             dataSource.setUser(DbConfig.USERNAME);
@@ -18,6 +19,7 @@ public abstract class DaoAbstract <T> {
             e.printStackTrace();
         }
     }
+
     public abstract int save ( T entity);
 
     protected PreparedStatement statementForVarArgs(String query, Object... params){
@@ -25,12 +27,16 @@ public abstract class DaoAbstract <T> {
         try {
             preparedStatement = connection.prepareStatement(query);
             for(int i=1; i<=params.length; i++){
-                if (Integer.class.equals(params[i - 1].getClass())) {
-                    System.out.println("Integer");
-                } else if (Double.class.equals(params[i - 1].getClass())) {
-                    System.out.println("double");
-                } else if (String.class.equals(params[i - 1].getClass())) {
-                    System.out.println("String");
+                Object param = params[i - 1];
+                Class paramClass = param.getClass();
+                if (Integer.class.equals(paramClass)) {
+                    preparedStatement.setInt(i , (int)param);
+                } else if (Double.class.equals(paramClass)) {
+                    preparedStatement.setDouble(i , (double)param);
+                } else if (String.class.equals(paramClass)) {
+                    preparedStatement.setString(i , (String)param);
+                } else if (Boolean.class.equals(paramClass)) {
+                    preparedStatement.setBoolean(i , (Boolean) param); ;
                 }
             }
         } catch (SQLException e) {
@@ -44,12 +50,16 @@ public abstract class DaoAbstract <T> {
         try {
             preparedStatement = connection.prepareStatement(query , Statement.RETURN_GENERATED_KEYS);
             for(int i=1; i<=params.length; i++){
-                if (Integer.class.equals(params[i - 1].getClass())) {
-                    System.out.println("Integer");
-                } else if (Double.class.equals(params[i - 1].getClass())) {
-                    System.out.println("double");
-                } else if (String.class.equals(params[i - 1].getClass())) {
-                    System.out.println("String");
+                Object param = params[i - 1];
+                Class paramClass = param.getClass();
+                if (Integer.class.equals(paramClass)) {
+                    preparedStatement.setInt(i , (int)param);
+                } else if (Double.class.equals(paramClass)) {
+                    preparedStatement.setDouble(i , (double)param);
+                } else if (String.class.equals(paramClass)) {
+                    preparedStatement.setString(i , (String)param);
+                } else if (Boolean.class.equals(paramClass)) {
+                    preparedStatement.setBoolean(i , (Boolean) param); ;
                 }
             }
         } catch (SQLException e) {

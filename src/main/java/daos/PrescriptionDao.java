@@ -18,7 +18,11 @@ public class PrescriptionDao extends DaoAbstract<Prescription> {
         int id = 0;
         final String QUERY = "INSERT INTO prescriptions (patient_id, isconfirmed) VALUES( ?, false)";
         try(PreparedStatement preparedStatement = idReturnStatementForVarArgs(QUERY , entity.getPatientId()) ){
-            id = preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            resultSet.next();
+            id= resultSet.getInt(1);
+            resultSet.close();
             for (Item item : entity.getItemList()){
                 item.setPrescriptionId(id);
                 itemDao.save(item);
@@ -34,13 +38,31 @@ public class PrescriptionDao extends DaoAbstract<Prescription> {
         try(PreparedStatement preparedStatement= statementForVarArgs(QUERY);
         ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                prescriptionList.add(convert(resultSet));
+                Prescription prescription = convert(resultSet);
+                prescription.setItemList(itemDao.getByPrescriptionId(prescription.getId()));
+                prescriptionList.add(prescription);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return prescriptionList;
     }
+    public List<Prescription> getByPatientId(int id){
+        final String QUERY = "SELECT id, isconfirmed, patient_id FROM prescriptions WHERE patient_id = ?";
+        List<Prescription> prescriptionList =new ArrayList<>();
+        try(PreparedStatement preparedStatement= statementForVarArgs(QUERY , id);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                Prescription prescription = convert(resultSet);
+                prescription.setItemList(itemDao.getByPrescriptionId(prescription.getId()));
+                prescriptionList.add(prescription);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return prescriptionList;
+    }
+
     public Optional<Prescription> getById(int id){
         final String QUERY = "SELECT id, isconfirmed, patient_id FROM prescriptions WHERE id = ?";
         Optional<Prescription> prescription =null;
@@ -64,6 +86,30 @@ public class PrescriptionDao extends DaoAbstract<Prescription> {
                 itemDao.save(item);
             }
         }
+    }
+    public void confirm(Prescription prescription){
+        final String QUERY = "UPDATE PRESCRIPTIONS SET isconfirmed = true WHERE id = ?";
+        try(PreparedStatement preparedStatement = idReturnStatementForVarArgs(QUERY , prescription.getId()) ){
+            preparedStatement.execute();
+            for (Item item : prescription.getItemList()){
+                itemDao.confirm(item);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void delete(int id){
+        Optional<Prescription> prescriptionOptional = getById(id);
+        if(prescriptionOptional.isPresent()){
+            itemDao.deleteByPrescriptionId(id);
+            final String QUERY = "DELETE FROM prescriptions WHERE id = ?";
+            try(PreparedStatement preparedStatement = statementForVarArgs(QUERY , id)){
+                preparedStatement.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private Prescription convert(ResultSet resultSet) throws SQLException {

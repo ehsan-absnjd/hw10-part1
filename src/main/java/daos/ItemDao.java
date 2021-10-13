@@ -13,17 +13,21 @@ public class ItemDao extends DaoAbstract<Item>{
     @Override
     public int save(Item entity) {
         int id=0;
-        final String QUERY = "INSERT INTO prescriptions_items ( prescription_id, name, quantity) VALUES(?, ?, ?)";
+        final String QUERY = "INSERT INTO prescriptions_items ( prescriptions_id, name, quantity) VALUES(?, ?, ?)";
         try(PreparedStatement preparedStatement = idReturnStatementForVarArgs(QUERY , entity.getPrescriptionId() ,
                 entity.getName() , entity.getQuantity() )){
-            id = preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            resultSet.next();
+            id= resultSet.getInt(1);
+            resultSet.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return id;
     }
     public List<Item> getByPrescriptionId(int id){
-        final String QUERY = "SELECT id, prescription_id, name, quantity, exists, unit_price " +
+        final String QUERY = "SELECT id, prescriptions_id, name, quantity, ifexists, unit_price " +
                 "FROM prescriptions_items WHERE prescriptions_id = ?";
         List<Item> itemList = new ArrayList<>();
         try(PreparedStatement preparedStatement = statementForVarArgs(QUERY , id);
@@ -37,8 +41,16 @@ public class ItemDao extends DaoAbstract<Item>{
         return itemList;
     }
     public void deleteByPrescriptionId(int id){
-        final String QUERY = "DELETE prescriptions_items WHERE prescriptions_id = ?";
+        final String QUERY = "DELETE FROM prescriptions_items WHERE prescriptions_id = ?";
         try(PreparedStatement preparedStatement = statementForVarArgs(QUERY , id) ) {
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void confirm(Item item){
+        final String QUERY = "UPDATE prescriptions_items SET ifexists=? , unit_price = ? WHERE id = ?";
+        try(PreparedStatement preparedStatement = statementForVarArgs(QUERY ,item.getExists() , item.getUnitPrice(), item.getId()) ) {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
