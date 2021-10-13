@@ -8,12 +8,9 @@ public class Item {
     private Boolean exists;
     private Double unitPrice;
 
-    public Boolean getExists() {
-        return exists;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
+    public Item(String name, int quantity) {
+        this.name = name;
+        this.quantity = quantity;
     }
 
     public Item(int id, int prescriptionId, String name, int quantity, Boolean exists, Double unitPrice) {
@@ -25,14 +22,12 @@ public class Item {
         this.unitPrice = unitPrice;
     }
 
-
-    public Item(String name, int quantity) {
-        this.name = name;
-        this.quantity = quantity;
+    public Boolean getExists() {
+        return exists;
     }
 
-    public void setPrescriptionId(int prescriptionId) {
-        this.prescriptionId = prescriptionId;
+    public Double getUnitPrice() {
+        return unitPrice;
     }
 
     public int getPrescriptionId() {
@@ -49,6 +44,10 @@ public class Item {
 
     public int getId() {
         return id;
+    }
+    
+    public void setPrescriptionId(int prescriptionId) {
+        this.prescriptionId = prescriptionId;
     }
 
     public void setExists(Boolean exists) {
